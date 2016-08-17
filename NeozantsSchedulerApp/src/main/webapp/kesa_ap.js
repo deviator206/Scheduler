@@ -1,6 +1,8 @@
 /**
  * 
  */
+
+ 	var SIMULATE_BACKEND =true;
 	var NEW_PROCESS_STATE = {
 			
 		//test connection not intiated
@@ -45,7 +47,8 @@ kesa.AdminPanelView = function(){
 	this.pageVisibilityStateMapper =  {
 		"1":"loginPage",
 		"2":"dashBoardPage",
-		"3":"newProcessPage"
+		"3":"newProcessPage",
+		"4":"viewExistingProcessPage"
 	};
 	this.pageVisibilityState= 1;
 	this.processStep = 1;
@@ -156,7 +159,7 @@ kesa.AdminPanelView.prototype={
 			$("#kesaDashboardEditUserDetails").on("click",this.dashboardOptionClicked.bind(this));
 			$("#kesaDashboardCreateMoreUsers").on("click",this.dashboardOptionClicked.bind(this));
 			
-			$("#kesaNavigateToHome").on("click",this.navigateToHome.bind(this));
+			$(".kesaNavigateToHome").on("click",this.navigateToHome.bind(this));
 			
 			$("#kesaTestConnectionBtn").on("click",this.testConnectivity.bind(this));
 			
@@ -459,6 +462,9 @@ kesa.AdminPanelView.prototype={
 					this.pageVisibilityState =3 ;
 					this.showPageAsPerState();
 					break;
+				case "kesa_dashboard_02":
+					this.pageVisibilityState =4 ;
+					this.showPageAsPerState();
 			}
 		},
 		loginClicked:function(){
@@ -500,6 +506,7 @@ kesa.AdminPanelView.prototype={
 
 
 
+
 kesa.AdminPanelServiceLayer = function(){
 	
 }
@@ -513,31 +520,47 @@ kesa.AdminPanelServiceLayer.prototype={
 					"role": "admin",
 					"password": "1978"
 			}*/
-			$.ajax({
-				url:"neozant/user/login",
-				type:"POST",
-				contentType: "application/json; charset=utf-8",
-			    data : JSON.stringify(data),
-				success:loginCallBack,
-				error:loginCallBackError,
-				timeout:loginCallBackError
-			});
+			if (!SIMULATE_BACKEND)	 {
+				$.ajax({
+					url:"neozant/user/login",
+					type:"POST",
+					contentType: "application/json; charset=utf-8",
+				    data : JSON.stringify(data),
+					success:loginCallBack,
+					error:loginCallBackError,
+					timeout:loginCallBackError
+				});	
+			}
+			else {
+				loginCallBack({
+					responseStatus:'success'
+				})
+			}
+			
 		},
 		triggerConnectivity:function(data,connectivityCallBack,connectivityCallBackError){
 			$("#kesa-loader").show();
-			$.ajax({
-				url:"neozant/schedule/testDbConnection",
-				contentType: "application/json; charset=utf-8",
-			    data : JSON.stringify(data),
-				type:"GET",
-				success:connectivityCallBack,
-				error:connectivityCallBackError,
-				timeout:connectivityCallBackError
-				
-			});
+			if (!SIMULATE_BACKEND)	 {
+				$.ajax({
+					url:"neozant/schedule/testDbConnection",
+					contentType: "application/json; charset=utf-8",
+				    data : JSON.stringify(data),
+					type:"GET",
+					success:connectivityCallBack,
+					error:connectivityCallBackError,
+					timeout:connectivityCallBackError
+					
+				});
+			}
+			else {
+				connectivityCallBack({
+					responseStatus:'success'
+				});
+			}
 		},
 		triggerGetConfigData:function(data,configCallBack,configCallBackError){
 			$("#kesa-loader").show();
+			if (!SIMULATE_BACKEND)	 {
 			$.ajax({
 				url:"neozant/schedule/getConfigData",
 				contentType: "application/json; charset=utf-8",
@@ -548,6 +571,12 @@ kesa.AdminPanelServiceLayer.prototype={
 				timeout:configCallBackError
 				
 			});
+		}
+		else {
+			var jsonResponse = {"recipientAddress":["rvaijapure@lao.ten.fujitsu.com"],"listOfSourceFiles":["C:\\Users\\Ketan\\Desktop\\SCHEDULER_RELATED\\SOURCE_DIRECTORY\\Deleted _TDC_ONHAND_INVENTORY.sql","C:\\Users\\Ketan\\Desktop\\SCHEDULER_RELATED\\SOURCE_DIRECTORY\\EBS USERS REPORT FOR KOBAYASHI.sql","C:\\Users\\Ketan\\Desktop\\SCHEDULER_RELATED\\SOURCE_DIRECTORY\\ITAC_Sales_query.sql","C:\\Users\\Ketan\\Desktop\\SCHEDULER_RELATED\\SOURCE_DIRECTORY\\TDC_onhand.sql","C:\\Users\\Ketan\\Desktop\\SCHEDULER_RELATED\\SOURCE_DIRECTORY\\TDC_ONHAND_INVENTORY.sql"],"outputFilePath":"C:\\Users\\Ketan\\Desktop\\SCHEDULER_RELATED\\DESTINATION_DIRECTORY","sourceFilePath":"C:\\Users\\Ketan\\Desktop\\SCHEDULER_RELATED\\SOURCE_DIRECTORY","fileFormatSupported":["xls","csv"],"detailMessageOnFailure":null,"responseStatus":"success"}
+			configCallBack(jsonResponse);
+		}
+			
 		},
 		
 		triggerConfigSubmission:function(data,submissionCallBack,submissionCallBackError){
@@ -565,6 +594,8 @@ kesa.AdminPanelServiceLayer.prototype={
 		}
 		
 }
+
+
 
 
 kesa.AdminPanelController= function(){
