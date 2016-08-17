@@ -63,6 +63,7 @@ kesa.AdminPanelView = function(){
 			"EMAIL":""
 			
 	};
+	this.recordList =[];
 	
 }	
 kesa.AdminPanelView.prototype={
@@ -167,6 +168,11 @@ kesa.AdminPanelView.prototype={
 			
 			$("#kesaBackBtn").on("click",this.processStepPrevBtnClicked.bind(this));
 			$("#kesaDoneBtn").on("click",this.processStepDoneBtnClicked.bind(this));
+
+			//kesa-earlier-process-tbody
+
+			$("#fetch-all-records").on("click",this.fetchAllRecordsClicked.bind(this));
+			
 			
 			//$("#kesaFetchFileList").on("click",this.fetchFileListClicked.bind(this));//KV
 			
@@ -377,7 +383,88 @@ kesa.AdminPanelView.prototype={
 					//this.renderProcessSteps();
 				}
 		},
+		fetchDetailedView :function(evt){
+			console.log("ID : "+$(evt.currentTarget).attr("m-data")	);
+			var recordId = $(evt.currentTarget).attr("m-data")
+			if (recordId) {
+				this.serviceMgr.fetchedDetailedViewForId({id:recordId}, this.fetchedDetailsSucess.bind(this),this.fetchDetailsFailure.bind(this));	
+			}
+		},
+		fetchedDetailsSucess :function(response){
+			$("#kesa-loader").hide();
+			if(response && response.responseStatus === "success"){
+				$("#kesa-earlier-processdetails-tbody").empty();			
+				this.createTablularDetailedUIBasedOnResponse(response);
+				$("#myModal").modal();
+			}else{
+				$("#fetchTableResultMessage").html("unable to fetch record details");	
+			}
+		},
+		fetchDetailsFailure :function(){
+			$("#kesa-loader").hide();
+			$("#fetchTableResultMessage").html("unable to fetch record details");
+		},
+		fetchAllRecordsClicked :function(){
+			$("#kesa-earlier-process-tbody").empty();
+			this.serviceMgr.fetchAllRecords({}, this.fetchAllRecordsResponse.bind(this),this.fetchAllRecordsFailure.bind(this));
 		
+		},
+		fetchAllRecordsFailure :function(){
+			$("#kesa-loader").hide();
+			$("#fetchTableResultMessage").html("DB -Connectivity test failed..");
+		},
+		fetchAllRecordsResponse:function(response){
+			$("#kesa-loader").hide();
+			
+			if(response && response.responseStatus === "success"){
+				this.createTablularUIBasedOnResponse(response);
+			}else{
+				$("#fetchTableResultMessage").html("DB -Connectivity test failed.."+response.detailMessageOnFailure);
+			}
+		},
+		createTablularUIBasedOnResponse :function(response){
+			if (response && response.records) {
+				this.recordList = response.records;
+				var s1 = '';
+				$("#kesa-earlier-process-tbody").empty();
+				for (var i = 0; i<response.records.length;i++){
+						s1 += '<tr>'
+						s1 += '<td>'+ response.records[i].id + '</td>'
+						s1 += '<td>'+ response.records[i].nameOfProcess + '</td>'
+						s1 += '<td>'+ response.records[i].fileToExecute + '</td>'
+						s1 += '<td>'+ response.records[i].dateTime + '</td>'
+						s1 += '<td>'+ response.records[i].outputFormat + '</td>'
+						s1 += '<td>'+ response.records[i].mode + '</td>'
+						s1 += '<td>'+ response.records[i].emailList + '</td>'
+						s1 += '<td>'+ response.records[i].status + '</td>'
+						s1 += '<td> <input type="submit" value="View"  class="kesa-records-detailedView" m-data="'+response.records[i].id+'"> </td>'
+						s1 += '</tr>'
+				}
+				$(".kesa-records-detailedView").off("click",this.fetchDetailedView.bind(this));
+				$("#kesa-earlier-process-tbody").append(s1);
+				$(".kesa-records-detailedView").on("click",this.fetchDetailedView.bind(this));
+			}
+		},
+		createTablularDetailedUIBasedOnResponse :function(response){
+			if (response && response.records) {
+				this.recordList = response.records;
+				var s1 = '';
+				$("#kesa-earlier-processdetails-tbody").empty();
+				for (var i = 0; i<response.records.length;i++){
+						s1 += '<tr>'
+						s1 += '<td>'+ response.records[i].id + '</td>'
+						s1 += '<td>'+ response.records[i].executedTime + '</td>'
+						s1 += '<td>'+ response.records[i].result + '</td>'
+						s1 += '<td>'+ response.records[i].outputFormat + '</td>'
+						s1 += '<td>'+ response.records[i].outputFileName + '</td>'
+						s1 += '<td>'+ response.records[i].emailStatus + '</td>'
+						s1 += '</tr>'
+				}
+				$("#kesa-earlier-processdetails-tbody").append(s1);
+			}
+		},
+
+
 		testConnectivity:function(){
 			this.serviceMgr.triggerConnectivity({}, this.onConnectivityResponse.bind(this),this.onConnectivityFailure.bind(this));
 			//this.onConnectivityResponse();
@@ -557,6 +644,118 @@ kesa.AdminPanelServiceLayer.prototype={
 					responseStatus:'success'
 				});
 			}
+		},
+		fetchAllRecords :function(data,configCallBack,configCallBackError){
+			$("#kesa-loader").show();
+			if (!SIMULATE_BACKEND)	 {
+				$.ajax({
+					url:"neozant/schedule/getConfigData",
+					contentType: "application/json; charset=utf-8",
+				    data : JSON.stringify(data),
+					type:"GET",
+					success:configCallBack,
+					error:configCallBackError,
+					timeout:configCallBackError
+					
+				});
+			}
+			else {
+				var jsonResponse = {
+					responseStatus:"success",
+					records:[
+						{
+							"id":"1",
+							"nameOfProcess":"X1",
+							"fileToExecute":"X1/asbc.txt",
+							"dateTime":"",
+							"outputFormat":"xls",
+							"mode":"EVERYDAY",
+							"emailList":"abc@a.com,aaa@a.com",
+							"status":"Completed"
+						},
+						{
+							"id":"2",
+							"nameOfProcess":"X1",
+							"fileToExecute":"X1/asbc.txt",
+							"dateTime":"",
+							"outputFormat":"xls",
+							"mode":"EVERYDAY",
+							"emailList":"abc@a.com,aaa@a.com",
+							"status":"Completed"
+						},
+						{
+							"id":"3",
+							"nameOfProcess":"X1",
+							"fileToExecute":"X1/asbc.txt",
+							"dateTime":"",
+							"outputFormat":"xls",
+							"mode":"EVERYDAY",
+							"emailList":"abc@a.com,aaa@a.com",
+							"status":"Completed"
+						}
+
+					]
+				}
+				configCallBack(jsonResponse);
+			}
+
+		},
+		fetchedDetailedViewForId :function(data,configCallBack,configCallBackError){
+			$("#kesa-loader").show();
+			if (!SIMULATE_BACKEND)	 {
+			$.ajax({
+				url:"neozant/schedule/getConfigData",
+				contentType: "application/json; charset=utf-8",
+			    data : JSON.stringify(data),
+				type:"GET",
+				success:configCallBack,
+				error:configCallBackError,
+				timeout:configCallBackError
+				
+			});
+		}
+		else {
+			var jsonResponse = {
+					responseStatus:"success",
+					records:[
+						{
+							"id":"1",
+							"executedTime":"Execute Time",
+							"result":"Result",
+							"outputFormat":"xls",
+							"outputFileName":"abc.txt",
+							"emailStatus":"abc@a.com,aaa@a.com"
+						},{
+							"id":"2",
+							"executedTime":"Execute Time",
+							"result":"Result",
+							"outputFormat":"xls",
+							"outputFileName":"abc.txt",
+							"emailStatus":"abc@a.com,aaa@a.com"
+						},
+						{
+							"id":"3",
+							"executedTime":"Execute Time",
+							"result":"Result",
+							"outputFormat":"xls",
+							"outputFileName":"abc.txt",
+							"emailStatus":"abc@a.com,aaa@a.com"
+						},
+						{
+							"id":"4",
+							"executedTime":"Execute Time",
+							"result":"Result",
+							"outputFormat":"xls",
+							"outputFileName":"abc.txt",
+							"emailStatus":"abc@a.com,aaa@a.com"
+						},
+
+					]
+				}
+
+				configCallBack(jsonResponse);
+		}
+			
 		},
 		triggerGetConfigData:function(data,configCallBack,configCallBackError){
 			$("#kesa-loader").show();

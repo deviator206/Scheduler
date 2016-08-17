@@ -276,3 +276,20 @@ third party
     /* padding-top: 50% !important; */
     /* top: 50%; */
 }
+
+
+
+/* SEARCH*/
+
+.stylish-input-group .input-group-addon{
+    background: white !important; 
+}
+.stylish-input-group .form-control{
+  border-right:0; 
+  box-shadow:0 0 0; 
+  border-color:#ccc;
+}
+.stylish-input-group button{
+    border:0;
+    background:transparent;
+}

@@ -246,14 +246,88 @@
 				<div class="col-md-2">
 					<button type="button" class="btn btn-info pull-left kesaNavigateToHome" id="kesaNavigateToHome">Home</button>	
 				</div>
-				<div class="col-md-2">
+				<div class="col-md-10">
 					<h1> Track Earlier Processes </h1>
 				</div>
 				
 			</div>	
 			<div class="container">
+				<div class="row">
+					<div class="col-md-2">
+						<input type="submit" class="form-control"  id="fetch-all-records" value="Fetch All Records" />
+					</div>
+					<div class="col-md-6 kesa-hide-me">
+					<input type="text" class="form-control"  placeholder="Search" />
+					</div>
+					<div class="col-md-2 kesa-hide-me">
+					<input type="submit" class="form-control"   value="Search" />
+					</div>
+				</div>
+				<div class="row" id="fetchTableResultMessage"></div>
+				<div class="table-responsive">
+					  <table class="table">
+					    <thead>
+					      <tr>
+					        <th>#</th>
+					        <th>Name Of Process</th>
+					        <th>File To Execute</th>
+					        <th>Date And Time</th>
+					        <th>Output Format</th>
+					        <th>Mode</th>
+					        <th>Email</th>
+					        <th>Status</th>
+					        <th>Action</th>
+					      </tr>
+					    </thead>
+					    <tbody id = "kesa-earlier-process-tbody">
+					      
+					    
+					    </tbody>
+					  </table>
+					  </div>
+
 			</div>
 	</div>
+	
+	  <!-- Modal -->
+  <div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Modal Header</h4>
+        </div>
+        <div class="modal-body">
+					<div class="table-responsive">
+					  <table class="table">
+					    <thead>
+					      <tr>
+					        <th>#</th>
+					        <th>Execute Time</th>
+					        <th>Result</th>
+					        <th>Output Format</th>
+					        <th>Output File </th>
+					        <th>Email Status</th>
+					      </tr>
+					    </thead>
+					    <tbody id = "kesa-earlier-processdetails-tbody">
+					    
+					    </tbody>
+					  </table>
+					  </div>
+
+          
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
 		
 
 
